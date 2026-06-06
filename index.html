@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>請求入力 | オオバ電設事務所増築工事</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f0f;
+  --surface: #1a1a1a;
+  --surface2: #222;
+  --border: #2e2e2e;
+  --accent: #e8c547;
+  --text: #f0ede8;
+  --text-muted: #888;
+  --danger: #e85454;
+  --success: #54c87a;
+  --radius: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px 60px;
+}
+header {
+  width: 100%; max-width: 560px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 14px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+}
+.site-label { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-muted); letter-spacing:.15em; text-transform:uppercase; margin-bottom:4px; }
+.site-title { font-size:15px; font-weight:500; color:var(--accent); }
+.tab-bar {
+  width:100%; max-width:560px;
+  display:flex; gap:4px; margin-bottom:20px;
+}
+.tab {
+  flex:1; padding:10px; border:1px solid var(--border);
+  border-radius:var(--radius); background:var(--surface2);
+  color:var(--text-muted); font-family:'Noto Sans JP',sans-serif;
+  font-size:13px; cursor:pointer; transition:.15s;
+}
+.tab.active { background:var(--accent); color:#111; border-color:var(--accent); font-weight:500; }
+
+.card {
+  width:100%; max-width:560px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); padding:24px 20px;
+  margin-bottom:12px;
+}
+
+/* PIN */
+#pin-screen { text-align:center; }
+.pin-title { font-size:13px; color:var(--text-muted); letter-spacing:.08em; margin-bottom:28px; }
+.pin-dots { display:flex; gap:14px; justify-content:center; margin-bottom:28px; }
+.pin-dot { width:16px; height:16px; border-radius:50%; border:2px solid var(--border); background:transparent; transition:.15s; }
+.pin-dot.filled { background:var(--accent); border-color:var(--accent); }
+.pin-keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:260px; margin:0 auto 14px; }
+.key {
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
+  color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:20px; font-weight:500;
+  padding:16px 0; cursor:pointer; transition:.12s; user-select:none; -webkit-tap-highlight-color:transparent;
+}
+.key:active { background:#2e2e2e; transform:scale(0.96); }
+.key.del { font-size:14px; color:var(--text-muted); }
+.key.zero { grid-column:2; }
+.pin-error { color:var(--danger); font-size:12px; min-height:18px; }
+
+/* FORM */
+.form-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.form-title { font-size:14px; font-weight:500; color:var(--accent); }
+.top-btns { display:flex; gap:8px; align-items:center; }
+.settings-btn { background:none; border:none; color:var(--text-muted); font-size:18px; cursor:pointer; padding:2px; }
+.settings-btn:hover { color:var(--text); }
+.lock-btn { background:none; border:1px solid var(--border); color:var(--text-muted); font-size:11px; padding:4px 10px; border-radius:4px; cursor:pointer; font-family:'Noto Sans JP',sans-serif; }
+.lock-btn:hover { border-color:var(--text-muted); color:var(--text); }
+
+.field { margin-bottom:16px; }
+label { display:block; font-size:11px; color:var(--text-muted); letter-spacing:.08em; margin-bottom:6px; }
+input, textarea, select {
+  width:100%; background:var(--bg); border:1px solid var(--border);
+  border-radius:var(--radius); color:var(--text);
+  font-family:'Noto Sans JP',sans-serif; font-size:15px; padding:10px 12px; outline:none; transition:.15s;
+}
+input:focus, textarea:focus, select:focus { border-color:var(--accent); }
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance:none; }
+select option { background:var(--surface2); }
+.amount-wrap { position:relative; }
+.yen { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-family:'IBM Plex Mono',monospace; font-size:14px; }
+.amount-wrap input { padding-left:24px; font-family:'IBM Plex Mono',monospace; }
+textarea { resize:vertical; min-height:68px; font-size:14px; }
+.btn-row { display:flex; gap:10px; margin-top:20px; }
+.btn { flex:1; padding:13px; border-radius:var(--radius); font-family:'Noto Sans JP',sans-serif; font-size:14px; font-weight:500; cursor:pointer; border:none; transition:.15s; }
+.btn:active { transform:scale(0.98); }
+.btn-primary { background:var(--accent); color:#111; }
+.btn-primary:hover { opacity:.9; }
+.btn-primary:disabled { opacity:.4; cursor:default; }
+.btn-ghost { background:transparent; border:1px solid var(--border); color:var(--text-muted); }
+.btn-ghost:hover { border-color:var(--text-muted); color:var(--text); }
+.status-msg { text-align:center; font-size:12px; margin-top:10px; min-height:18px; color:var(--success); }
+.status-msg.err { color:var(--danger); }
+
+/* LIST */
+.list-toolbar { display:flex; gap:8px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
+.list-toolbar select { flex:1; min-width:120px; font-size:13px; padding:8px 10px; }
+.btn-sm { padding:8px 14px; border-radius:6px; font-size:12px; font-weight:500; cursor:pointer; border:none; font-family:'Noto Sans JP',sans-serif; white-space:nowrap; }
+.btn-sm.outline { background:transparent; border:1px solid var(--border); color:var(--text-muted); }
+.btn-sm.outline:hover { border-color:var(--text-muted); color:var(--text); }
+.btn-sm.green { background:#1a3a2a; color:var(--success); border:1px solid #2a5a3a; }
+.btn-sm.green:hover { background:#1f4530; }
+
+.summary-bar {
+  display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;
+}
+.summary-chip {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:6px; padding:8px 14px; font-size:12px;
+}
+.summary-chip .label { color:var(--text-muted); margin-bottom:2px; }
+.summary-chip .value { font-family:'IBM Plex Mono',monospace; font-size:14px; color:var(--accent); font-weight:500; }
+
+.gyosha-group { margin-bottom:16px; }
+.gyosha-header {
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:var(--radius); padding:10px 14px;
+  cursor:pointer; user-select:none;
+}
+.gyosha-name { font-size:14px; font-weight:500; }
+.gyosha-total { font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--accent); }
+.gyosha-arrow { color:var(--text-muted); font-size:11px; transition:transform .2s; }
+.gyosha-arrow.open { transform:rotate(180deg); }
+.gyosha-rows { display:none; border:1px solid var(--border); border-top:none; border-radius:0 0 var(--radius) var(--radius); overflow:hidden; }
+.gyosha-rows.open { display:block; }
+.row-item {
+  display:grid; grid-template-columns:90px 1fr auto;
+  gap:8px; align-items:center;
+  padding:10px 14px; border-bottom:1px solid var(--border);
+  font-size:13px;
+}
+.row-item:last-child { border-bottom:none; }
+.row-date { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-muted); }
+.row-memo { color:var(--text-muted); font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.row-amount { font-family:'IBM Plex Mono',monospace; font-size:13px; text-align:right; white-space:nowrap; }
+.row-del { background:none; border:none; color:#555; cursor:pointer; font-size:14px; padding:2px 4px; margin-left:6px; }
+.row-del:hover { color:var(--danger); }
+
+.empty-msg { text-align:center; color:var(--text-muted); font-size:13px; padding:32px 0; }
+.loading-msg { text-align:center; color:var(--text-muted); font-size:13px; padding:24px 0; }
+
+/* MODAL */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:100; align-items:center; justify-content:center; padding:24px; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:26px 22px; width:100%; max-width:340px; }
+.modal h3 { font-size:14px; margin-bottom:18px; color:var(--accent); }
+.modal .field { margin-bottom:12px; }
+.modal input { font-family:'IBM Plex Mono',monospace; letter-spacing:.2em; }
+.modal-btns { display:flex; gap:10px; margin-top:18px; }
+.modal-err { color:var(--danger); font-size:12px; min-height:18px; margin-top:6px; }
+
+/* HOW TO */
+.howto-header { display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+.howto-step { display:flex; gap:14px; align-items:flex-start; padding:12px 0; border-bottom:1px solid var(--border); }
+.step-num { flex-shrink:0; width:26px; height:26px; border-radius:50%; background:var(--surface2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent); margin-top:1px; }
+.step-title { font-size:13px; font-weight:500; margin-bottom:3px; }
+.step-desc { font-size:12px; color:var(--text-muted); line-height:1.6; }
+
+/* TOAST */
+.toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(16px); background:var(--success); color:#111; font-size:13px; font-weight:500; padding:9px 20px; border-radius:100px; opacity:0; transition:.3s; pointer-events:none; white-space:nowrap; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="site-label">請求管理システム</div>
+    <div class="site-title">オオバ電設事務所増築工事</div>
+  </div>
+</header>
+
+<!-- PIN画面 -->
+<div class="card" id="pin-screen">
+  <p class="pin-title">4桁PINを入力してください</p>
+  <div class="pin-dots">
+    <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+  </div>
+  <div class="pin-keypad">
+    <button class="key" onclick="pressKey('1')">1</button>
+    <button class="key" onclick="pressKey('2')">2</button>
+    <button class="key" onclick="pressKey('3')">3</button>
+    <button class="key" onclick="pressKey('4')">4</button>
+    <button class="key" onclick="pressKey('5')">5</button>
+    <button class="key" onclick="pressKey('6')">6</button>
+    <button class="key" onclick="pressKey('7')">7</button>
+    <button class="key" onclick="pressKey('8')">8</button>
+    <button class="key" onclick="pressKey('9')">9</button>
+    <button class="key zero" onclick="pressKey('0')">0</button>
+    <button class="key del" onclick="delKey()">⌫</button>
+  </div>
+  <p class="pin-error" id="pin-error"></p>
+</div>
+
+<!-- メイン（ログイン後） -->
+<div id="main-screen" style="display:none;width:100%;max-width:560px;">
+
+  <div class="tab-bar">
+    <button class="tab active" id="tab-input" onclick="switchTab('input')">📥 請求入力</button>
+    <button class="tab" id="tab-list" onclick="switchTab('list')">📋 一覧・集計</button>
+  </div>
+
+  <!-- 入力タブ -->
+  <div id="pane-input">
+    <div class="card">
+      <div class="form-header">
+        <span class="form-title">請求入力</span>
+        <div class="top-btns">
+          <button class="settings-btn" onclick="openPinModal()" title="PIN変更">⚙</button>
+          <button class="lock-btn" onclick="lockScreen()">ロック</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>業者名 *</label>
+        <input type="text" id="gyosha" placeholder="例：山田電気工事" autocomplete="off" list="gyosha-list">
+        <datalist id="gyosha-list"></datalist>
+      </div>
+      <div class="field">
+        <label>請求金額 (円) *</label>
+        <div class="amount-wrap">
+          <span class="yen">¥</span>
+          <input type="number" id="kingaku" placeholder="0" min="0">
+        </div>
+      </div>
+      <div class="field">
+        <label>日付 *</label>
+        <input type="date" id="hizuke">
+      </div>
+      <div class="field">
+        <label>メモ・備考</label>
+        <textarea id="memo" placeholder="備考があれば入力"></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="clearForm()">クリア</button>
+        <button class="btn btn-primary" id="send-btn" onclick="sendForm()">保存 ＋ 送信</button>
+      </div>
+      <p class="status-msg" id="status-msg"></p>
+    </div>
+  </div>
+
+  <!-- 一覧タブ -->
+  <div id="pane-list" style="display:none;">
+    <div class="card">
+      <div class="list-toolbar">
+        <select id="sort-sel" onchange="renderList()">
+          <option value="date-desc">日付：新しい順</option>
+          <option value="date-asc">日付：古い順</option>
+          <option value="amount-desc">金額：高い順</option>
+          <option value="amount-asc">金額：低い順</option>
+        </select>
+        <select id="filter-gyosha" onchange="renderList()">
+          <option value="">全業者</option>
+        </select>
+        <button class="btn-sm green" onclick="exportCSV()">CSV出力</button>
+        <button class="btn-sm outline" onclick="loadData()">🔄</button>
+      </div>
+      <div class="summary-bar" id="summary-bar"></div>
+      <div id="list-body"><p class="loading-msg">読み込み中…</p></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 使い方 -->
+<div class="card" id="howto-card" style="display:none;margin-top:0;">
+  <div class="howto-header" onclick="toggleHowto()">
+    <span style="font-size:13px;color:var(--text-muted);">📖 使い方</span>
+    <span id="howto-arrow" style="color:var(--text-muted);font-size:11px;display:inline-block;transition:transform .2s;">▼</span>
+  </div>
+  <div id="howto-body" style="display:none;margin-top:16px;">
+    <div class="howto-step">
+      <div class="step-num">1</div>
+      <div><div class="step-title">PIN入力でログイン</div><div class="step-desc">4桁PINを入力。初期PINは管理者に確認してください。⚙でいつでも変更可能です。</div></div>
+    </div>
+    <div class="howto-step">
+      <div class="step-num">2</div>
+      <div><div class="step-title">請求入力タブで入力</div><div class="step-desc">業者名・金額・日付は必須。「保存＋送信」でFirebaseに保存し、メールにも通知が届きます。</div></div>
+    </div>
+    <div class="howto-step">
+      <div class="step-num">3</div>
+      <div><div class="step-title">一覧・集計タブで確認</div><div class="step-desc">業者ごとに請求をまとめて表示。合計金額・日付ソート・業者フィルター・CSV出力が使えます。</div></div>
+    </div>
+    <div class="howto-step" style="border-bottom:none;padding-bottom:0;">
+      <div class="step-num">🔒</div>
+      <div><div class="step-title">ロック</div><div class="step-desc">「ロック」ボタンでPIN画面に戻ります。離席時はロックしてください。</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PIN変更モーダル -->
+<div class="modal-overlay" id="pin-modal">
+  <div class="modal">
+    <h3>⚙ PIN変更</h3>
+    <div class="field"><label>現在のPIN</label><input type="password" id="cur-pin" maxlength="4" inputmode="numeric" placeholder="····"></div>
+    <div class="field"><label>新しいPIN（4桁）</label><input type="password" id="new-pin" maxlength="4" inputmode="numeric" placeholder="····"></div>
+    <div class="field"><label>新しいPIN（確認）</label><input type="password" id="new-pin2" maxlength="4" inputmode="numeric" placeholder="····"></div>
+    <p class="modal-err" id="modal-err"></p>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" style="flex:1" onclick="closePinModal()">キャンセル</button>
+      <button class="btn btn-primary" style="flex:1" onclick="changePin()">変更する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import {
+  getFirestore, collection, addDoc, getDocs,
+  deleteDoc, doc, query, orderBy, serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+// ═══════════════════════════════════════════════════
+// ★ ここをご自身のFirebase設定に書き換えてください
+const firebaseConfig = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT.firebaseapp.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+// ★ Formspree エンドポイント
+const FORMSPREE = 'https://formspree.io/f/maqvwgeg';
+// ★ 初期PIN（初回のみ。変更後はlocalStorageに保存）
+const DEFAULT_PIN = '1234';
+// ═══════════════════════════════════════════════════
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const COL = 'seikyu_ooba';
+
+// グローバルに公開
+window._db    = db;
+window._col   = COL;
+window._addDoc      = addDoc;
+window._collection  = collection;
+window._getDocs     = getDocs;
+window._deleteDoc   = deleteDoc;
+window._doc         = doc;
+window._query       = query;
+window._orderBy     = orderBy;
+window._serverTimestamp = serverTimestamp;
+window.FORMSPREE    = FORMSPREE;
+window.DEFAULT_PIN  = DEFAULT_PIN;
+
+// 初期ロード
+window._firebaseReady = true;
+</script>
+
+<script>
+// ── PIN ────────────────────────────────────────────
+const STORAGE_KEY = 'oba_pin_v2';
+function getPin()    { return localStorage.getItem(STORAGE_KEY) || window.DEFAULT_PIN || '1234'; }
+function savePin(p)  { localStorage.setItem(STORAGE_KEY, p); }
+
+let pinBuf = '';
+function updateDots() {
+  for (let i=0;i<4;i++) document.getElementById('d'+i).classList.toggle('filled', i<pinBuf.length);
+}
+function pressKey(k) {
+  if (pinBuf.length>=4) return;
+  pinBuf += k; updateDots();
+  document.getElementById('pin-error').textContent = '';
+  if (pinBuf.length===4) checkPin();
+}
+function delKey() { pinBuf=pinBuf.slice(0,-1); updateDots(); }
+function checkPin() {
+  if (pinBuf===getPin()) {
+    document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('main-screen').style.display = 'block';
+    document.getElementById('howto-card').style.display  = 'block';
+    setToday();
+    loadData();
+  } else {
+    document.getElementById('pin-error').textContent = 'PINが違います';
+    pinBuf=''; updateDots();
+  }
+}
+function lockScreen() {
+  pinBuf=''; updateDots();
+  document.getElementById('pin-error').textContent='';
+  document.getElementById('main-screen').style.display = 'none';
+  document.getElementById('howto-card').style.display  = 'none';
+  document.getElementById('pin-screen').style.display  = 'block';
+}
+
+// ── タブ ────────────────────────────────────────────
+function switchTab(t) {
+  document.getElementById('pane-input').style.display = t==='input'?'block':'none';
+  document.getElementById('pane-list').style.display  = t==='list' ?'block':'none';
+  document.getElementById('tab-input').classList.toggle('active', t==='input');
+  document.getElementById('tab-list').classList.toggle('active',  t==='list');
+  if (t==='list') loadData();
+}
+
+// ── 今日の日付 ──────────────────────────────────────
+function setToday() {
+  const t=new Date();
+  document.getElementById('hizuke').value =
+    `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+}
+
+// ── データ ─────────────────────────────────────────
+let allData = [];
+
+async function loadData() {
+  document.getElementById('list-body').innerHTML = '<p class="loading-msg">読み込み中…</p>';
+  try {
+    const q = window._query(
+      window._collection(window._db, window._col),
+      window._orderBy('timestamp','desc')
+    );
+    const snap = await window._getDocs(q);
+    allData = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+    updateGyoshaOptions();
+    renderList();
+    updateDatalist();
+  } catch(e) {
+    document.getElementById('list-body').innerHTML = '<p class="loading-msg" style="color:var(--danger)">読み込みエラー。Firebase設定を確認してください。</p>';
+    console.error(e);
+  }
+}
+
+function updateGyoshaOptions() {
+  const names = [...new Set(allData.map(d=>d.gyosha))].sort();
+  const sel = document.getElementById('filter-gyosha');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">全業者</option>' + names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  if (names.includes(cur)) sel.value = cur;
+}
+
+function updateDatalist() {
+  const names = [...new Set(allData.map(d=>d.gyosha))].sort();
+  document.getElementById('gyosha-list').innerHTML = names.map(n=>`<option value="${esc(n)}">`).join('');
+}
+
+function renderList() {
+  const sort   = document.getElementById('sort-sel').value;
+  const filter = document.getElementById('filter-gyosha').value;
+
+  let data = filter ? allData.filter(d=>d.gyosha===filter) : [...allData];
+
+  data.sort((a,b)=>{
+    if (sort==='date-desc')   return (b.hizuke||'') > (a.hizuke||'') ? 1:-1;
+    if (sort==='date-asc')    return (a.hizuke||'') > (b.hizuke||'') ? 1:-1;
+    if (sort==='amount-desc') return (b.kingaku||0) - (a.kingaku||0);
+    if (sort==='amount-asc')  return (a.kingaku||0) - (b.kingaku||0);
+    return 0;
+  });
+
+  // サマリー
+  const total = data.reduce((s,d)=>s+(d.kingaku||0),0);
+  const gyoshaCount = new Set(data.map(d=>d.gyosha)).size;
+  document.getElementById('summary-bar').innerHTML = `
+    <div class="summary-chip"><div class="label">件数</div><div class="value">${data.length}件</div></div>
+    <div class="summary-chip"><div class="label">業者数</div><div class="value">${gyoshaCount}社</div></div>
+    <div class="summary-chip"><div class="label">合計金額</div><div class="value">¥${total.toLocaleString('ja-JP')}</div></div>
+  `;
+
+  if (data.length===0) {
+    document.getElementById('list-body').innerHTML='<p class="empty-msg">データがありません</p>';
+    return;
+  }
+
+  // 業者ごとにグループ
+  const groups = {};
+  data.forEach(d=>{
+    if (!groups[d.gyosha]) groups[d.gyosha]=[];
+    groups[d.gyosha].push(d);
+  });
+
+  let html='';
+  Object.entries(groups).forEach(([name,rows])=>{
+    const subtotal = rows.reduce((s,r)=>s+(r.kingaku||0),0);
+    const gid = 'g_'+btoa(encodeURIComponent(name)).replace(/[^a-z0-9]/gi,'');
+    html += `
+      <div class="gyosha-group">
+        <div class="gyosha-header" onclick="toggleGroup('${gid}')">
+          <span class="gyosha-name">🏢 ${esc(name)}</span>
+          <span style="display:flex;align-items:center;gap:8px;">
+            <span class="gyosha-total">¥${subtotal.toLocaleString('ja-JP')}</span>
+            <span class="gyosha-arrow" id="arr_${gid}">▼</span>
+          </span>
+        </div>
+        <div class="gyosha-rows" id="${gid}">
+          ${rows.map(r=>`
+            <div class="row-item">
+              <span class="row-date">${r.hizuke||''}</span>
+              <span class="row-memo">${esc(r.memo||'—')}</span>
+              <span style="display:flex;align-items:center;">
+                <span class="row-amount">¥${(r.kingaku||0).toLocaleString('ja-JP')}</span>
+                <button class="row-del" onclick="deleteRow('${r.id}')" title="削除">🗑</button>
+              </span>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  });
+  document.getElementById('list-body').innerHTML = html;
+}
+
+function toggleGroup(gid) {
+  const el  = document.getElementById(gid);
+  const arr = document.getElementById('arr_'+gid);
+  const open = el.classList.toggle('open');
+  arr.classList.toggle('open', open);
+}
+
+async function deleteRow(id) {
+  if (!confirm('この請求を削除しますか？')) return;
+  await window._deleteDoc(window._doc(window._db, window._col, id));
+  showToast('削除しました');
+  loadData();
+}
+
+// ── フォーム送信 ────────────────────────────────────
+function clearForm() {
+  document.getElementById('gyosha').value='';
+  document.getElementById('kingaku').value='';
+  document.getElementById('memo').value='';
+  document.getElementById('status-msg').textContent='';
+  document.getElementById('status-msg').className='status-msg';
+  setToday();
+}
+
+async function sendForm() {
+  const gyosha  = document.getElementById('gyosha').value.trim();
+  const kingaku = parseInt(document.getElementById('kingaku').value)||0;
+  const hizuke  = document.getElementById('hizuke').value;
+  const memo    = document.getElementById('memo').value.trim();
+  const status  = document.getElementById('status-msg');
+  const btn     = document.getElementById('send-btn');
+
+  if (!gyosha||!kingaku||!hizuke) {
+    status.textContent='業者名・金額・日付は必須です'; status.className='status-msg err'; return;
+  }
+  btn.disabled=true; status.textContent='保存中…'; status.className='status-msg';
+
+  try {
+    // Firebase保存
+    await window._addDoc(window._collection(window._db, window._col), {
+      gyosha, kingaku, hizuke, memo,
+      gemba: 'オオバ電設事務所増築工事',
+      timestamp: window._serverTimestamp()
+    });
+
+    // Formspreeメール
+    const fd = new FormData();
+    fd.append('現場名','オオバ電設事務所増築工事');
+    fd.append('業者名',gyosha);
+    fd.append('請求金額',`¥${kingaku.toLocaleString('ja-JP')}`);
+    fd.append('日付',hizuke);
+    fd.append('メモ',memo||'（なし）');
+    fetch(window.FORMSPREE,{method:'POST',body:fd,headers:{Accept:'application/json'}});
+
+    showToast('保存しました！');
+    clearForm();
+    status.textContent='';
+  } catch(e) {
+    status.textContent='保存に失敗しました。Firebase設定を確認してください。';
+    status.className='status-msg err';
+    console.error(e);
+  }
+  btn.disabled=false;
+}
+
+// ── CSV出力 ─────────────────────────────────────────
+function exportCSV() {
+  const filter = document.getElementById('filter-gyosha').value;
+  const data = filter ? allData.filter(d=>d.gyosha===filter) : [...allData];
+  if (!data.length) { alert('データがありません'); return; }
+
+  const rows = [['業者名','日付','請求金額','メモ','現場名']];
+  data.sort((a,b)=>a.hizuke>b.hizuke?-1:1).forEach(d=>{
+    rows.push([d.gyosha, d.hizuke, d.kingaku, d.memo||'', d.gemba||'オオバ電設事務所増築工事']);
+  });
+  const csv = '\uFEFF' + rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download = `seikyu_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast('CSVを出力しました');
+}
+
+// ── PIN変更 ─────────────────────────────────────────
+function openPinModal() {
+  ['cur-pin','new-pin','new-pin2'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('modal-err').textContent='';
+  document.getElementById('pin-modal').classList.add('open');
+}
+function closePinModal() { document.getElementById('pin-modal').classList.remove('open'); }
+function changePin() {
+  const cur=document.getElementById('cur-pin').value;
+  const np1=document.getElementById('new-pin').value;
+  const np2=document.getElementById('new-pin2').value;
+  const err=document.getElementById('modal-err');
+  if (cur!==getPin())        { err.textContent='現在のPINが違います'; return; }
+  if (!/^\d{4}$/.test(np1)) { err.textContent='4桁の数字で入力してください'; return; }
+  if (np1!==np2)             { err.textContent='新PINが一致しません'; return; }
+  savePin(np1); closePinModal(); showToast('PINを変更しました');
+}
+
+// ── 使い方 ──────────────────────────────────────────
+function toggleHowto() {
+  const b=document.getElementById('howto-body');
+  const a=document.getElementById('howto-arrow');
+  const open=b.style.display==='block';
+  b.style.display=open?'none':'block';
+  a.style.transform=open?'':'rotate(180deg)';
+}
+
+// ── トースト ─────────────────────────────────────────
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// ── ユーティリティ ───────────────────────────────────
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// グローバル公開
+window.pressKey=pressKey; window.delKey=delKey;
+window.switchTab=switchTab; window.lockScreen=lockScreen;
+window.clearForm=clearForm; window.sendForm=sendForm;
+window.exportCSV=exportCSV; window.loadData=loadData;
+window.renderList=renderList; window.toggleGroup=toggleGroup;
+window.deleteRow=deleteRow; window.openPinModal=openPinModal;
+window.closePinModal=closePinModal; window.changePin=changePin;
+window.toggleHowto=toggleHowto;
+</script>
+</body>
+</html>
