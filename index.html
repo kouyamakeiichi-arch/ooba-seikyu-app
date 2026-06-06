@@ -150,6 +150,10 @@ textarea{resize:vertical;min-height:64px;font-size:14px;}
 .info-box{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;font-size:12px;color:var(--text-muted);line-height:1.7;margin-bottom:12px;}
 .info-box strong{color:var(--text);}
 
+.howto-item{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border);}
+.howto-num{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent);margin-top:1px;}
+.howto-title{font-size:13px;font-weight:500;margin-bottom:4px;}
+.howto-desc{font-size:12px;color:var(--text-muted);line-height:1.7;}
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--success);color:#111;font-size:13px;font-weight:500;padding:9px 20px;border-radius:100px;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;z-index:999;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
@@ -359,8 +363,75 @@ textarea{resize:vertical;min-height:64px;font-size:14px;}
     <!-- メール -->
     <div class="settings-section">
       <h3>📧 通知メール設定</h3>
-      <div class="field" style="margin-bottom:8px;"><label>Formspree エンドポイント</label><input type="text" id="formspree-input" placeholder="https://formspree.io/f/xxxxxxxx"></div>
+      <div class="info-box">
+        <strong>Formspree</strong> を使ってメール通知を送信します。<br>
+        Formspreeアカウント（<strong>formspree.io</strong>）でフォームを作成し、<br>
+        エンドポイントURL（https://formspree.io/f/xxxxxxxx）を入力してください。<br>
+        変更後は必ず<strong>「保存」ボタン</strong>を押してください。
+      </div>
+      <div class="field" style="margin-bottom:8px;">
+        <label>現在の設定</label>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-muted);" id="formspree-masked"></div>
+      </div>
+      <div class="field" style="margin-bottom:8px;"><label>新しいエンドポイント</label><input type="text" id="formspree-input" placeholder="https://formspree.io/f/xxxxxxxx"></div>
       <button class="btn btn-primary" style="max-width:160px;padding:10px;" onclick="saveFormspree()">保存</button>
+    </div>
+
+    <!-- 使い方 -->
+    <div class="settings-section">
+      <h3>📖 使い方</h3>
+      <div class="howto-item">
+        <div class="howto-num">1</div>
+        <div>
+          <div class="howto-title">PINでログイン</div>
+          <div class="howto-desc">管理者PIN・業者PINを入力してログインします。<br>
+          管理者：全機能（入力・一覧・設定）が使えます。<br>
+          業者：請求入力のみ使えます。一覧は見えません。</div>
+        </div>
+      </div>
+      <div class="howto-item">
+        <div class="howto-num">2</div>
+        <div>
+          <div class="howto-title">物件を選択</div>
+          <div class="howto-desc">ログイン後、物件一覧が表示されます。入力する物件を選んで「この物件で入力する」を押してください。</div>
+        </div>
+      </div>
+      <div class="howto-item">
+        <div class="howto-num">3</div>
+        <div>
+          <div class="howto-title">請求入力</div>
+          <div class="howto-desc">業者名・請求金額・日付は必須項目です。入力後「保存＋送信」を押すとFirebaseに保存され、登録メールにも通知が届きます。</div>
+        </div>
+      </div>
+      <div class="howto-item">
+        <div class="howto-num">4</div>
+        <div>
+          <div class="howto-title">一覧・集計（管理者のみ）</div>
+          <div class="howto-desc">業者ごとに請求をまとめて表示。合計金額・日付ソート・業者フィルター・CSV出力が使えます。リアルタイムで自動更新されます。</div>
+        </div>
+      </div>
+      <div class="howto-item">
+        <div class="howto-num">5</div>
+        <div>
+          <div class="howto-title">PINモード設定</div>
+          <div class="howto-desc"><strong>モードA（共通PIN）：</strong>全業者が同じPINで入力画面にアクセス。<br>
+          <strong>モードB（個別PIN）：</strong>業者ごとにPINを設定。ログイン時に業者名が自動入力されます。</div>
+        </div>
+      </div>
+      <div class="howto-item">
+        <div class="howto-num">6</div>
+        <div>
+          <div class="howto-title">メール通知設定</div>
+          <div class="howto-desc">Formspree（formspree.io）でフォームを作成し、エンドポイントURL（https://formspree.io/f/xxxxxxxx）を設定画面に入力して「保存」を押してください。保存しないと反映されません。</div>
+        </div>
+      </div>
+      <div class="howto-item" style="border-bottom:none;padding-bottom:0;">
+        <div class="howto-num">🔒</div>
+        <div>
+          <div class="howto-title">ロック</div>
+          <div class="howto-desc">右上の「ロック」ボタンでPIN画面に戻ります。離席時は必ずロックしてください。</div>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -512,12 +583,13 @@ function loginSuccess() {
 
 function lockScreen() {
   pinBuf=''; updateDots(); stopListener();
-  currentRole=null; currentGyoshaName=null;
+  currentRole=null; currentGyoshaName=null; currentGemba=null;
   document.getElementById('pin-error').textContent='';
   ['gemba-screen','main-screen','gyosha-screen','settings-screen'].forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById('pin-screen').style.display='block';
   document.getElementById('header-btns').style.display='none';
   document.getElementById('live-badge').style.display='none';
+  document.getElementById('header-title').textContent=getCompany();
 }
 
 // ══ 物件 ══
@@ -790,11 +862,19 @@ async function sendGyoshaForm(){
 }
 
 // ══ 設定 ══
+function maskUrl(url){
+  if(!url) return '未設定';
+  // https://formspree.io/f/abcd1234 → https://formspree.io/f/●●●●●●●●
+  return url.replace(/\/f\/[a-zA-Z0-9]+$/, '/f/●●●●●●●●');
+}
 function showSettings(){
   ['gemba-screen','main-screen','gyosha-screen'].forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById('settings-screen').style.display='block';
   document.getElementById('company-name-input').value=getCompany();
-  document.getElementById('formspree-input').value=getFormspree();
+  document.getElementById('formspree-input').value='';
+  document.getElementById('formspree-input').placeholder=maskUrl(getFormspree());
+  const masked=document.getElementById('formspree-masked');
+  if(masked) masked.textContent=maskUrl(getFormspree());
   document.getElementById('common-pin-input').value=getCommonPin();
   loadPinModeUI();
   loadGembaManageOnly();
@@ -820,8 +900,13 @@ function saveCompanyName(){
 }
 function saveFormspree(){
   const v=document.getElementById('formspree-input').value.trim();
-  if(!v) return;
+  if(!v){ showToast('URLを入力してください'); return; }
+  if(!v.startsWith('https://formspree.io/f/')){ showToast('正しいFormspree URLを入力してください'); return; }
   localStorage.setItem(FORMSPREE_KEY,v);
+  document.getElementById('formspree-input').value='';
+  document.getElementById('formspree-input').placeholder=maskUrl(v);
+  const masked=document.getElementById('formspree-masked');
+  if(masked) masked.textContent=maskUrl(v);
   showToast('メール設定を保存しました');
 }
 
@@ -945,3 +1030,4 @@ document.getElementById('header-title').textContent=getCompany();
 </script>
 </body>
 </html>
+
