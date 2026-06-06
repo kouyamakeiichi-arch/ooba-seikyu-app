@@ -412,13 +412,31 @@ const DEFAULT_GYOSHA_PINS = [
 function getAdminPin()    { return localStorage.getItem(PIN_KEY) || DEFAULT_PIN; }
 function getFormspree()   { return localStorage.getItem(FORMSPREE_KEY) || DEFAULT_FORMSPREE; }
 function getCompany()     { return localStorage.getItem(COMPANY_KEY) || '請求管理システム'; }
-function getPinMode()     { return localStorage.getItem(PINMODE_KEY) || 'A'; }
+function getPinMode()     { return localStorage.getItem(PINMODE_KEY) || 'B'; }
 function getCommonPin()   { return localStorage.getItem(COMMONPIN_KEY) || '0000'; }
 function getGyoshaPins()  {
-  try { return JSON.parse(localStorage.getItem(GYOSHAPINS_KEY)) || DEFAULT_GYOSHA_PINS; }
-  catch(e) { return DEFAULT_GYOSHA_PINS; }
+  const stored = localStorage.getItem(GYOSHAPINS_KEY);
+  if(!stored) {
+    // 初回：デフォルトデータを保存してから返す
+    localStorage.setItem(GYOSHAPINS_KEY, JSON.stringify(DEFAULT_GYOSHA_PINS));
+    return DEFAULT_GYOSHA_PINS;
+  }
+  try {
+    const parsed = JSON.parse(stored);
+    return (parsed && parsed.length > 0) ? parsed : DEFAULT_GYOSHA_PINS;
+  } catch(e) { return DEFAULT_GYOSHA_PINS; }
 }
 function saveGyoshaPins(arr) { localStorage.setItem(GYOSHAPINS_KEY, JSON.stringify(arr)); }
+
+// 初回起動時にデフォルトデータを確実に保存
+function initDefaultData() {
+  if(!localStorage.getItem(GYOSHAPINS_KEY)) {
+    localStorage.setItem(GYOSHAPINS_KEY, JSON.stringify(DEFAULT_GYOSHA_PINS));
+  }
+  if(!localStorage.getItem(PINMODE_KEY)) {
+    localStorage.setItem(PINMODE_KEY, 'B');
+  }
+}
 
 // ══ カラー ══
 function applyColor(color, dim) {
@@ -921,6 +939,7 @@ window.saveOneGyoshaPin=saveOneGyoshaPin; window.deleteGyoshaPin=deleteGyoshaPin
 window.addGyoshaPin=addGyoshaPin; window.updateGyoshaPin=updateGyoshaPin;
 
 // ══ 初期化 ══
+initDefaultData();
 loadColor();
 document.getElementById('header-title').textContent=getCompany();
 </script>
