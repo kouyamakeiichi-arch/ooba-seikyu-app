@@ -472,8 +472,9 @@ function goToInput(){
   document.getElementById('current-gemba-label').textContent=currentGemba.name;
   document.getElementById('header-title').textContent=currentGemba.name;
   document.getElementById('live-badge').style.display='flex';
-  setToday(); switchTab('input');
-  startListener(); // ★ リアルタイムリスナー開始
+  setToday();
+  startListener(); // ★ リアルタイムリスナー開始（タブに関わらず常時）
+  switchTab('input');
 }
 
 function backToGemba(){ loadGembaScreen(); }
@@ -671,6 +672,8 @@ function switchTab(t){
   document.getElementById('pane-list').style.display=t==='list'?'block':'none';
   document.getElementById('tab-input').classList.toggle('active',t==='input');
   document.getElementById('tab-list').classList.toggle('active',t==='list');
+  // リスナーは止めない・タブに関わらず常時動作
+  if(!unsubscribe && currentGemba) startListener();
 }
 
 // ── 設定 ─────────────────────────────────────
